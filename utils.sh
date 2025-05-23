@@ -19,6 +19,7 @@ red() {
 }
 installpath="$HOME"
 baseurl="https://ss.fkj.pp.ua"
+linkBaseurl="https://la.fkj.pp.ua"
 
 checknezhaAgentAlive() {
   if ps aux | grep nezha-agent | grep -v "grep" >/dev/null; then
@@ -259,7 +260,7 @@ getDoMain() {
   if isServ00; then
     echo -n "serv00.com"
   else
-    echo -n "useruno.com"
+    echo -n "hostuno.com"
   fi
 }
 
@@ -589,7 +590,7 @@ check_update_from_net() {
     ;;
   "nezha-dashboard")
     local current_version=$(./nezha-dashboard -v)
-    if ! check_from_github "naiba" "nezha" "$current_version"; then
+    if ! check_from_github "frankiejun" "freebsd-nezha" "$current_version"; then
       echo "未发现新版本!"
       return 1
     fi
@@ -635,9 +636,6 @@ download_from_github_release() {
   *.zip)
     unzip -o "$zippackage" -d .
     ;;
-  *.gz)
-    gzip -d "$zippackage"
-    ;;
   *.tar.gz | *.tgz)
     tar -xzf "$zippackage"
     ;;
@@ -646,6 +644,9 @@ download_from_github_release() {
     ;;
   *.tar.xz | *.txz)
     tar -xJf "$zippackage"
+    ;;
+  *.gz)
+    gzip -d "$zippackage"
     ;;
   *.tar)
     tar -xf "$zippackage"
@@ -779,4 +780,20 @@ start_sing_box() {
     red "启动失败!"
   fi
 
+}
+
+checkCronNameStatus() {
+  if checkCronName $1; then
+    green "在线"
+  else
+    red "离线"
+  fi
+}
+checkCronName() {
+  local name=$1
+  if crontab -l | grep -q "$name"; then
+    return 0
+  else
+    return 1
+  fi
 }
